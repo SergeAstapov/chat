@@ -1,0 +1,19 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src='/js/vendors/browser.js')
+    script(src='/js/vendors/browser-polyfill.js')
+    script(src='/js/vendors/es6-module-loader-dev.js')
+    script(src='/js/vendors/socket.io.js')
+    script.
+      System.transpiler = 'babel';
+
+      System.import('js/index.js').then(function (module) {
+        module.default();
+      }).catch(function (e) {
+        console.error(e);
+      });
+  body
+    block content
