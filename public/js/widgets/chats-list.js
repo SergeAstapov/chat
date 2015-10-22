@@ -10,6 +10,7 @@ export default class ChatWidget extends EventEmitter {
         this.parent = parent;
 
         this.element = layout.build(this);
+        this.parent.parent.element.appendChild(this.element);
 
         let msgWidget = new ChatCreationWidget(this);
         this.element.appendChild(msgWidget.element);

@@ -25,22 +25,15 @@ router.get('/:chat_id', function (req, res, next) {
                 return [];
             }
 
-            var promises = messagesIds.map(function (messageId) {
-                var message = {};
-
-                var promises = msgKeys.map(function (msgProp) {
-                    return redisClient
-                        .hgetAsync("message:" + messageId, msgProp)
-                        .then(value => message[msgProp] = value)
-                    ;
-                });
-
-                return Promise.all(promises).then(() => message);
+            var promises = messagesIds.map(messageId => {
+                return redisClient.hgetallAsync("message:" + messageId);
             });
 
             return Promise.all(promises);
         })
         .then(messages => {
+            messages = messages.filter(message => !message['moderated']);
+
             res.json({
                 id: chatId,
                 title: 'Test title',
@@ -54,10 +47,22 @@ router.get('/:chat_id', function (req, res, next) {
     ;
 });
 
-var rooms = [];
+router.put('/:chat_id/moderate', function (req, res, next) {
+    var chatId = req.params.chat_id;
+    var messageId = req.body.messageId;
+
+    app.io.sockets.in(chatId).emit('moderate message', {chatId, messageId});
+
+    redisClient.hset("message:" + messageId, 'moderated', 1);
+
+    res.json({
+        status: 'ok'
+    });
+});
 
 app.io.on('connection', function (socket) {
     socket.on('disconnect', function() {
+        // socket.rooms is internal implemented by socket.io
         socket.rooms.forEach(function (room) {
             socket.leave(room);
         });
@@ -96,91 +101,10 @@ app.io.on('connection', function (socket) {
     });
 
     socket.on('create chat', function (data) {
-        rooms.push(data.chatId);
         socket.emit('new chat', {
             chatId: data.chatId
         });
     });
 });
-
-//var WebSocketServer = require('ws').Server
-//    , wss = new WebSocketServer({server: 3000});
-//wss.on('connection', function (ws) {
-//    console.log('socket connection');
-//
-//    ws.on('new message', function (message) {
-//        console.log('received: %s', message);
-//    });
-//
-//    ws.send('something', {abc: 'xyz'});
-//});
-
-//var io = require('socket.io')();
-//app.io = io;
-//
-//io.on('connection', function (socket) {
-//    // when the client emits 'new message', this listens and executes
-//    socket.on('send message', function (data) {
-//        // we tell the client to execute 'new message'
-//        socket.broadcast.emit('new message', {
-//            nickname: data.nickname,
-//            message: data.message
-//        });
-//
-//        socket.emit('new message', {
-//            nickname: data.nickname,
-//            message: data.message
-//        });
-//    });
-//    //
-//    //// when the client emits 'add user', this listens and executes
-//    //socket.on('add user', function (username) {
-//    //    // we store the username in the socket session for this client
-//    //    socket.username = username;
-//    //    // add the client's username to the global list
-//    //    usernames[username] = username;
-//    //    ++numUsers;
-//    //    addedUser = true;
-//    //    socket.emit('login', {
-//    //        numUsers: numUsers
-//    //    });
-//    //    // echo globally (all clients) that a person has connected
-//    //    socket.broadcast.emit('user joined', {
-//    //        username: socket.username,
-//    //        numUsers: numUsers
-//    //    });
-//    //});
-//    //
-//    //// when the client emits 'typing', we broadcast it to others
-//    //socket.on('typing', function () {
-//    //    socket.broadcast.emit('typing', {
-//    //        username: socket.username
-//    //    });
-//    //});
-//    //
-//    //// when the client emits 'stop typing', we broadcast it to others
-//    //socket.on('stop typing', function () {
-//    //    socket.broadcast.emit('stop typing', {
-//    //        username: socket.username
-//    //    });
-//    //});
-//
-//    // when the user disconnects.. perform this
-//    socket.on('disconnect', function () {
-//        console.log('socket disconnect');
-//
-//        //// remove the username from global usernames list
-//        //if (addedUser) {
-//        //    delete usernames[socket.username];
-//        //    --numUsers;
-//        //
-//        //    // echo globally that this client has left
-//        //    socket.broadcast.emit('user left', {
-//        //        username: socket.username,
-//        //        numUsers: numUsers
-//        //    });
-//        //}
-//    });
-//});
 
 module.exports = router;

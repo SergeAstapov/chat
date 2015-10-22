@@ -12,5 +12,13 @@ export default {
 
     inviteUserToChat (chatId, nickname) {
         return ajaxTransport.POST('chats/' + chatId + '/users', nickname);
+    },
+
+    login (login, password) {
+        return ajaxTransport.POST('users/login', {login, password});
+    },
+
+    moderateMessage (messageId, chatId) {
+        return ajaxTransport.PUT('chats/' + chatId + '/moderate', {messageId});
     }
 }

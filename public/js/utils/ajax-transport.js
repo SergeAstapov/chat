@@ -57,12 +57,18 @@ export default {
             let url = config.rootURL + pathname;
 
             xhr.open('POST', url);
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
             xhr.addEventListener('load', function () {
                 try {
                     var data = JSON.parse(this.response);
 
-                    resolve(data);
+                    if (data.status == 'error') {
+                        data.type = 'businessLogic';
+                        reject(data);
+                    } else {
+                        resolve(data);
+                    }
                 } catch (e) {
                     reject({
                         type: 'ajax',
@@ -85,7 +91,51 @@ export default {
                 });
             }, false);
 
-            xhr.send(data);
+            xhr.send(data ? JSON.stringify(data) : '');
+        });
+    },
+
+    PUT (pathname, data = {}) {
+        return new Promise(function (resolve, reject) {
+            let xhr = new XMLHttpRequest();
+            let url = config.rootURL + pathname;
+
+            xhr.open('PUT', url);
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+            xhr.addEventListener('load', function () {
+                try {
+                    var data = JSON.parse(this.response);
+
+                    if (data.status == 'error') {
+                        data.type = 'businessLogic';
+                        reject(data);
+                    } else {
+                        resolve(data);
+                    }
+                } catch (e) {
+                    reject({
+                        type: 'ajax',
+                        message: 'Response parse from url "' + url + '" failed.'
+                    });
+                }
+            }, false);
+
+            xhr.addEventListener('error', function () {
+                reject({
+                    type: 'ajax',
+                    message: 'Response to url "' + url + '" failed.'
+                });
+            }, false);
+
+            xhr.addEventListener('abort', function () {
+                reject({
+                    type: 'ajax',
+                    message: 'Response to url "' + url + '" aborted.'
+                });
+            }, false);
+
+            xhr.send(data ? JSON.stringify(data) : '');
         });
     }
 }

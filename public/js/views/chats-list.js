@@ -10,7 +10,5 @@ export function build (chatWidget) {
     element.id = config.widgetIDPrefix + 'chats-list';
     element.className = 'chats-list';
 
-    chatWidget.parent.element.appendChild(element);
-
     return element;
 }

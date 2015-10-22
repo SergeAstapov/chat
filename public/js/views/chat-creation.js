@@ -42,15 +42,12 @@ function bindListeners (element, widget) {
     if (elForm) {
         elForm.style.display = 'none';
 
-        var focusEvent = document.createEvent('HTMLEvents');
-        focusEvent.initEvent('focus', true, true);
-
         elShowBtn.addEventListener('click', function (event) {
             event.preventDefault();
 
             elForm.style.display = '';
             setTimeout(function () {
-                elInput.dispatchEvent(focusEvent);
+                elInput.focus();
             }, 0);
         });
 

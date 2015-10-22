@@ -1,6 +1,7 @@
 import config from 'js/config.js';
 
 const template = '' +
+    '<span class="chat-message-remove">x</span>' +
     '<span class="chat-message-datetime"></span>' +
     '<span class="chat-message-nickname"></span>: ' +
     '<span class="chat-message-text"></span>'
@@ -15,7 +16,7 @@ export function build (messageWidget) {
     var documentFragment = document.createRange().createContextualFragment(template);
 
     var element = document.createElement('div');
-    element.id = config.widgetIDPrefix + 'chat-' + messageWidget.message.id;
+    element.dataset.id = messageWidget.message.id;
     element.className = 'chat-message';
     element.appendChild(documentFragment);
 

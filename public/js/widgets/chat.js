@@ -11,6 +11,8 @@ export default class ChatWidget extends EventEmitter {
         this.chatId = chatId;
 
         this.element = layout.build(this);
+
+        this.parent.parent.widget.element.appendChild(this.element);
     }
 
     updateMessages (messages) {

@@ -23,10 +23,9 @@ export function build (chatWidget) {
 
     var element = document.createElement('div');
     element.id = config.widgetIDPrefix + 'chat-' + chatWidget.chatId;
+    element.dataset.id = chatWidget.chatId;
     element.className = 'chat-window';
     element.appendChild(documentFragment);
-
-    chatWidget.parent.element.appendChild(element);
 
     fillContent(element, chatWidget);
     bindListeners(element, chatWidget);

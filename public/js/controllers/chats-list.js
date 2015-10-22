@@ -11,7 +11,7 @@ export default class ChatsListController {
     constructor () {
         this.chats = {};
 
-        this.element = App.element;
+        this.parent = App;
         this.widget = new ChatsListWidget(this);
 
         this.connection = resourceManager.getChatConnection();
@@ -49,7 +49,6 @@ export default class ChatsListController {
         });
 
         this.connection.on('new message', data => {
-            console.log('new message', data);
             try {
                 this.chats[data.chatId].newMessage(data);
             } catch (e) {
@@ -91,7 +90,6 @@ export default class ChatsListController {
     }
 
     _createChatInstance (chatId) {
-
         if (this.chats[chatId]) {
             console.warn('Chat ' + chatId + ' is already created.');
         } else {
