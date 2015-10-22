@@ -32,7 +32,9 @@ router.get('/:chat_id', function (req, res, next) {
             return Promise.all(promises);
         })
         .then(messages => {
-            messages = messages.filter(message => !message['moderated']);
+            messages = messages.filter(message => {
+                return !message['moderated'] && !message['filtered'];
+            });
 
             res.json({
                 id: chatId,
@@ -96,8 +98,20 @@ app.io.on('connection', function (socket) {
             redisClient.hset("message:" + message.id, msgKey, message[msgKey]);
         });
 
-        // we tell the client to execute 'new message'
-        app.io.sockets.in(message.chatId).emit('new message', message);
+        if (messageIsSpam(message)) {
+            redisClient.hset("message:" + message.id, 'filtered', 1);
+
+            socket.emit('new message', {
+                type: 'server',
+                chatId: message.chatId,
+                nickname: 'server',
+                message: 'message is spam'
+            });
+        } else {
+            console.log('message not spam, emit to chat room');
+            // we tell the client to execute 'new message'
+            app.io.sockets.in(message.chatId).emit('new message', message);
+        }
     });
 
     socket.on('create chat', function (data) {
@@ -108,3 +122,7 @@ app.io.on('connection', function (socket) {
 });
 
 module.exports = router;
+
+function messageIsSpam (message) {
+    return message.message.indexOf('spam') > -1;
+}
