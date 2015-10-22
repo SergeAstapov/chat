@@ -22,7 +22,7 @@ export function build (chatWidget) {
     var documentFragment = document.createRange().createContextualFragment(template);
 
     var element = document.createElement('div');
-    element.id = config.widgetIDPrefix + 'chat-' + chatWidget.chat.id;
+    element.id = config.widgetIDPrefix + 'chat-' + chatWidget.chatId;
     element.className = 'chat-window';
     element.appendChild(documentFragment);
 

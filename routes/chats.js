@@ -5,7 +5,7 @@ var crypto = require('crypto');
 var app = require('../app');
 var redisClient = app.redisClient;
 
-var msgKeys = ['id', 'nickname', 'message', 'date'];
+var msgKeys = ['id', 'nickname', 'message', 'date', 'chatId'];
 
 router.get('/:chat_id', function (req, res, next) {
     var chatId = req.params.chat_id;
@@ -54,9 +54,29 @@ router.get('/:chat_id', function (req, res, next) {
     ;
 });
 
+var rooms = [];
 
 app.io.on('connection', function (socket) {
-    var room = 'main';
+    socket.on('disconnect', function() {
+        socket.rooms.forEach(function (room) {
+            socket.leave(room);
+        });
+    });
+
+    socket.on('join chat', function (data) {
+        socket.join(data.chatId);
+
+        var message = {
+            type: 'server',
+            chatId: data.chatId,
+            nickname: 'server',
+            message: 'connected to ' + data.chatId
+        };
+        socket.emit('new message', message);
+
+        message.message = data.nickname + ' connected';
+        socket.broadcast.to(data.chatId).emit('new message', message);
+    });
 
     // when the client emits 'new message', this listens and executes
     socket.on('send message', function (message) {
@@ -65,15 +85,21 @@ app.io.on('connection', function (socket) {
         var msgStr = message.message + message.nickname + message.date;
         message.id = crypto.createHash('md5').update(msgStr).digest('hex');
 
-        redisClient.rpush(room, message.id);
+        redisClient.rpush(message.chatId, message.id);
 
         msgKeys.forEach(function (msgKey) {
             redisClient.hset("message:" + message.id, msgKey, message[msgKey]);
         });
 
         // we tell the client to execute 'new message'
-        socket.broadcast.emit('new message', message);
-        socket.emit('new message', message);
+        app.io.sockets.in(message.chatId).emit('new message', message);
+    });
+
+    socket.on('create chat', function (data) {
+        rooms.push(data.chatId);
+        socket.emit('new chat', {
+            chatId: data.chatId
+        });
     });
 });
 

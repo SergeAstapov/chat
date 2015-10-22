@@ -2,7 +2,7 @@ import ajaxTransport from 'js/utils/ajax-transport.js';
 import socketTransport from 'js/utils/socket-transport.js';
 
 export default {
-    getChatConnection (chatId) {
+    getChatConnection () {
         return socketTransport.create('');
     },
 

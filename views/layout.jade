@@ -11,6 +11,7 @@ html
       System.transpiler = 'babel';
 
       System.import('js/index.js').then(function (module) {
+        // Run application
         module.default();
       }).catch(function (e) {
         console.error(e);

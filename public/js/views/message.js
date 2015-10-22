@@ -19,6 +19,10 @@ export function build (messageWidget) {
     element.className = 'chat-message';
     element.appendChild(documentFragment);
 
+    if (messageWidget.message.type == 'server') {
+        element.className += ' chat-server-message';
+    }
+
     fillContent(element, messageWidget);
     bindListeners(element, messageWidget);
 

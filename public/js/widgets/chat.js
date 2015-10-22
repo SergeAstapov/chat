@@ -4,23 +4,21 @@ import * as layout from 'js/views/chat.js';
 import MessageWidget from 'js/widgets/message.js';
 
 export default class ChatWidget extends EventEmitter {
-    constructor (chat, parent) {
+    constructor (parent, chatId) {
         super();
 
         this.parent = parent;
-        this.chat = chat;
+        this.chatId = chatId;
 
         this.element = layout.build(this);
+    }
 
-        if (chat.messages && chat.messages.length) {
-            setTimeout(() => {
-                chat.messages.forEach(message => {
-                    this._appendMessage(message);
-                });
+    updateMessages (messages) {
+        messages.forEach(message => {
+            this._appendMessage(message);
+        });
 
-                this._fixScroll();
-            }, 0);
-        }
+        this._fixScroll();
     }
 
     sendMessage (msgText) {
@@ -29,7 +27,8 @@ export default class ChatWidget extends EventEmitter {
 
     newMessage (message) {
         this._appendMessage(message);
-        this._fixScroll();
+
+        setTimeout(() => this._fixScroll(), 1);
     }
 
     _appendMessage (message) {
@@ -43,14 +42,10 @@ export default class ChatWidget extends EventEmitter {
         let elMessages = this.element.querySelector('.chat-messages');
 
         let isScrolledTop = elMessages.scrollTop == 0 ||
-            elMessages.scrollTop < (this.element.scrollHeight - this.element.clientHeight);
+            elMessages.scrollTop < (elMessages.scrollHeight - elMessages.clientHeight);
 
         if (isScrolledTop) {
             elMessages.scrollTop = this.element.scrollHeight;
         }
-    }
-
-    makeInactive () {
-
     }
 }
