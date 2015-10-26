@@ -2,10 +2,10 @@ import config from 'js/config.js';
 
 /**
  *
- * @param {ChatWidget} chatWidget
+ * @param {ChatsListWidget} chatsListWidget
  * @returns {HTMLElement}
  */
-export function build (chatWidget) {
+export function build (chatsListWidget) {
     var element = document.createElement('div');
     element.id = config.widgetIDPrefix + 'chats-list';
     element.className = 'chats-list';

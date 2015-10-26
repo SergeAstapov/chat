@@ -3,7 +3,7 @@ import EventEmitter from 'js/utils/event-emitter.js';
 import * as layout from 'js/views/chats-list.js';
 import ChatCreationWidget from 'js/widgets/chat-creation.js';
 
-export default class ChatWidget extends EventEmitter {
+export default class ChatsListWidget extends EventEmitter {
     constructor (parent) {
         super();
 

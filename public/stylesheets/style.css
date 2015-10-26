@@ -120,3 +120,24 @@ a {
 .chat-moderation-login {
     margin-top: 5px;
 }
+
+
+
+
+.chats-button {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) rotate(270deg);
+    transform-origin: bottom right;
+}
+
+
+.chats-list, .chat-moderation {
+    display: none;
+}
+
+.widget-visible .chats-list, .widget-visible .chat-moderation {
+    display: block;
+}
